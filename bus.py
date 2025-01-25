@@ -10,14 +10,19 @@ from LSTM import LSTM, BiLSTM
 # Import data
 data = pd.read_csv("combined3_102_sorted.csv")
 scaler = MinMaxScaler()
-scaled_data = scaler.fit_transform(data[['delay', 'scheduled_time', 'day', 'day_of_year']])
+# scaled_data = scaler.fit_transform(data[['delay', 'scheduled_time', 'day', 'day_of_year']])
 
+# Z score normalization
+data = data[['delay', 'scheduled_time', 'day', 'day_of_year']].values
+mean = np.mean(data)
+std_dev = np.std(data)
+scaled_data = (data-mean)/std_dev
 # # create train and test sets
 # sizes = int(len(scaled_data) * 0.3)
 # train_data = scaled_data[:sizes]
 # test_data = scaled_data[sizes:]
 
-batchs = DataLoader(dataset=scaled_data, batch_size=600, shuffle=False)      
+batchs = DataLoader(dataset=scaled_data, batch_size=600, shuffle=False)   
 # Sequence creator
 def createSequences(data, seq_length):
     x, y = [], []
