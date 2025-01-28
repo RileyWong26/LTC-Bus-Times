@@ -5,24 +5,34 @@ import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import TensorDataset, DataLoader
-from LSTM import LSTM, BiLSTM
+from LSTM import LSTM, BiLSTM, AttentionBiLSTM
+from sklearn.preprocessing import LabelEncoder
 
 # Import data
 data = pd.read_csv("combined3_102_sorted.csv")
-scaler = MinMaxScaler()
+data2 = pd.read_csv("102_with_weather.csv")
+# scaler = MinMaxScaler()
 # scaled_data = scaler.fit_transform(data[['delay', 'scheduled_time', 'day', 'day_of_year']])
 
 # Z score normalization
+weather = data2["Weather"].values
+encoder = LabelEncoder()
+unique = encoder.fit_transform(weather).reshape(-1,1)
+unique -=1
+
+# unique = [len(data[col].unique()) for col in catergories]
 data = data[['delay', 'scheduled_time', 'day', 'day_of_year']].values
 mean = np.mean(data)
 std_dev = np.std(data)
 scaled_data = (data-mean)/std_dev
+scaled_data = np.concatenate((scaled_data, unique), axis=1)
+torch.manual_seed(100)
 # # create train and test sets
 # sizes = int(len(scaled_data) * 0.3)
 # train_data = scaled_data[:sizes]
 # test_data = scaled_data[sizes:]
 
-batchs = DataLoader(dataset=scaled_data, batch_size=600, shuffle=False)   
+batchs = DataLoader(dataset=scaled_data, batch_size=600, shuffle=False)  
 # Sequence creator
 def createSequences(data, seq_length):
     x, y = [], []
@@ -34,9 +44,12 @@ def createSequences(data, seq_length):
             y.append(y_data)
     return torch.stack(x, dim=0), torch.stack(y, dim=0)
 
+# print(scaled_data)
+# print(scaled_data[:,4])
 # Model
 # model = LSTM(inputdim=4, outputdim=1, layerdim=1, dropout=0.2)  # NON Bidirectional
-model = BiLSTM(inputdim=4, outputdim=1, layerdim=1, dropout=0.2)  # Bi Directional
+model = BiLSTM(inputdim=5, outputdim=1, layerdim=1, dropout=0.2)  # Bi Directional
+# model = AttentionBiLSTM(inputdim=4, outputdim=1, layerdim=1, dropout=0.2) # Bi Directional with Attention
 loss_fcn = nn.L1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
