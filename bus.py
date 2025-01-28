@@ -48,8 +48,8 @@ def createSequences(data, seq_length):
 # print(scaled_data[:,4])
 # Model
 # model = LSTM(inputdim=4, outputdim=1, layerdim=1, dropout=0.2)  # NON Bidirectional
-model = BiLSTM(inputdim=5, outputdim=1, layerdim=1, dropout=0.2)  # Bi Directional
-# model = AttentionBiLSTM(inputdim=4, outputdim=1, layerdim=1, dropout=0.2) # Bi Directional with Attention
+# model = BiLSTM(inputdim=5, outputdim=1, layerdim=1, dropout=0.2)  # Bi Directional
+model = AttentionBiLSTM(inputdim=5, outputdim=1,numheads=56, layerdim=1, dropout=0.2) # Bi Directional with Attention
 loss_fcn = nn.L1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
