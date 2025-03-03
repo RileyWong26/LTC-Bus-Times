@@ -92,6 +92,7 @@ class AttentionBiLSTM(nn.Module):
     def __init__(self, inputdim, outputdim, numheads, layerdim, dropout):
         super(AttentionBiLSTM, self).__init__()
         self.layerdim = layerdim
+        self.embedding = nn.Embedding(num_embeddings=25, embedding_dim=1)
         self.lstm1 = nn.LSTM(inputdim, 108, layerdim, batch_first=True, bidirectional=True)
         self.batchnorm = nn.BatchNorm1d(216)
         self.dropout = nn.Dropout(dropout)
@@ -112,6 +113,14 @@ class AttentionBiLSTM(nn.Module):
             h2 = torch.zeros(self.layerdim*2, x.size(0), 56)
             c2 = torch.zeros(self.layerdim*2, x.size(0), 56)
         
+        # Embedding
+        emb = x[:, :, 4].to(torch.long)
+
+        embed = self.embedding(emb).to(torch.float32)
+        x = x[:, :, :4]
+        
+        x = torch.cat([embed, x], dim=2)
+
         # First LSTM
         out,(h1, c1) = self.lstm1(x, (h1,c1))
 

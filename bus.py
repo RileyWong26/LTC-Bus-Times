@@ -27,12 +27,18 @@ std_dev = np.std(data)
 scaled_data = (data-mean)/std_dev
 scaled_data = np.concatenate((scaled_data, unique), axis=1)
 torch.manual_seed(100)
-# # create train and test sets
-# sizes = int(len(scaled_data) * 0.3)
-# train_data = scaled_data[:sizes]
-# test_data = scaled_data[sizes:]
 
-batchs = DataLoader(dataset=scaled_data, batch_size=600, shuffle=False)  
+# # create train and test sets
+sizes = int(len(scaled_data) * 0.2)
+test_data = scaled_data[:sizes]
+train_data = scaled_data[sizes:]
+
+# print(scaled_data.shape)
+# print(train_data.shape)
+# print(test_data.shape)
+
+train_batchs = DataLoader(dataset=train_data, batch_size=150, shuffle=False)  
+test_batchs = DataLoader(dataset=test_data, batch_size=150, shuffle=False)
 # Sequence creator
 def createSequences(data, seq_length):
     x, y = [], []
@@ -47,15 +53,15 @@ def createSequences(data, seq_length):
 # print(scaled_data)
 # print(scaled_data[:,4])
 # Model
-# model = LSTM(inputdim=4, outputdim=1, layerdim=1, dropout=0.2)  # NON Bidirectional
+# model = LSTM(inputdim=5, outputdim=1, layerdim=1, dropout=0.2)  # NON Bidirectional
 # model = BiLSTM(inputdim=5, outputdim=1, layerdim=1, dropout=0.2)  # Bi Directional
-model = AttentionBiLSTM(inputdim=5, outputdim=1,numheads=56, layerdim=1, dropout=0.2) # Bi Directional with Attention
+model = AttentionBiLSTM(inputdim=5, outputdim=1,numheads=4, layerdim=1, dropout=0.2) # Bi Directional with Attention
 loss_fcn = nn.L1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
 h1, c1, h2, c2 = None, None, None, None
 
-for batch in batchs:
+for batch in train_batchs:
     # Create sequences
     X_train, y_train = createSequences(batch, 30)
     y_train = y_train.reshape(-1,1)
@@ -63,8 +69,7 @@ for batch in batchs:
     # print(X_train.shape, y_train.shape)
 
     # Train
-    epochs = 1000
-    h1, c1, h2, c2 = None, None, None, None
+    epochs = 50
     for epoch in range(epochs):
 
         pred, h1, c1, h2, c2= model(X_train, h1, c1, h2, c2)
@@ -82,3 +87,19 @@ for batch in batchs:
         c1 = c1.detach()
         h2 = h2.detach()
         c2 = c2.detach()
+
+y_list = []
+for batch in test_batchs:
+    X_test, y_test= createSequences(batch, 30)
+    y_test = y_test.reshape(-1,1)
+    X_test = X_test.float()
+
+    y_pred=model(X_test, h1, c1, h2, c2)
+    y_list.append(y_pred)
+
+data_verify = pd.DataFrame(y_test.tolist(), columns=["Test"])
+data_predicted = pd.DataFrame(y_pred.tolist(),columns=['Predictions'])
+
+final_output = pd.concat([data_verify, data_predicted], axis=1)
+final_output['difference'] = final_output['Test'] - final_output['Predictions']
+print(final_output.head())
