@@ -13,3 +13,6 @@ Contains: <br>
   <li>dropout layers</li>
   <li> then 3 output layers</li>
 </ul>
+
+<h2>Part 2</h2>
+Intial data.  Began collecting data from different sources for datapoints in the model
