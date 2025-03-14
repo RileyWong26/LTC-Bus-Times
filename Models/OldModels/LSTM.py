@@ -83,8 +83,9 @@ class BiLSTM(nn.Module):
         out = self.dropout(out)
         # Second LSTM layer
         out, (h2, c2) = self.lstm2(out, (h2, c2))
+        out = out[:, -1, :]
         out = self.layers(out)
-        out = out[:, -1, :56]
+        # out = out[:, -1, :]
         return out, h1, c1, h2, c2
 
 # ANother BiLSTM model with attention attatched this time
