@@ -1,0 +1,426 @@
+StreetName,VolumeCount
+Adelaide St N,24143.0
+Adelaide St N - Ramp,1375.0
+Adelaide St S,14889.0
+Admiral Dr,3000.0
+Albert St,1250.0
+Aldersbrook Gate,5000.0
+Aldersbrook Rd,4350.0
+Alomar Dr,1000.0
+Ambleside Dr,2750.0
+Andover Dr,5357.0
+Ann St,1250.0
+Argyle St,1000.0
+Ashland Ave,1929.0
+Askin St,1000.0
+Atkinson Blvd,1000.0
+Baransway Dr,2500.0
+Barclay Rd,1500.0
+Barker St,2429.0
+Base Line Rd E,11567.0
+Base Line Rd W,4750.0
+Bateman Trail,3000.0
+Beachwood Ave,4583.0
+Beaverbrook Ave,7125.0
+Beckworth Ave,2500.0
+Belfield St,3000.0
+Belmont Dr,7500.0
+Bentley Dr,1500.0
+Berkshire Dr,3833.0
+Bessemer Rd,8500.0
+Birchwood Dr,1000.0
+Blackacres Blvd,3750.0
+Blackfriars St,1000.0
+Blackmaple Dr,1000.0
+Blackwater Rd,1667.0
+Blackwell Blvd,1500.0
+Bluebell Rd,3000.0
+Boler Rd,15222.0
+Bonaventure Dr,4333.0
+Bostwick Rd,5333.0
+Bow St,1000.0
+Bradish Rd,467.0
+Bradley Ave,14631.0
+Bradley Ave W,4000.0
+Brady Dr,200.0
+Bramblewood Pl,1000.0
+Bramblewood St,1000.0
+Briarhill Ave,3750.0
+Bruce St,2000.0
+Brydges St,8643.0
+Byron Baseline Rd,8700.0
+Campbell St,3500.0
+Campbell St N,3500.0
+Capulet Lane,5875.0
+Carfrae Cres,5000.0
+Carfrae St,1000.0
+Castle Dr,2500.0
+Castlegrove Blvd,2500.0
+Castleton Rd,500.0
+Cathcart St,1333.0
+Cavendish Cres,1000.0
+Cedarwood Rd,1500.0
+Central Ave,3688.0
+Chalkstone Dr,1750.0
+Chambers Ave,1000.0
+Cheapside St,13920.0
+Chelton Rd,2333.0
+Cherryhill Blvd,8000.0
+Cherryhill Cir,4000.0
+Cherryhill Pl,4000.0
+Chester St,1500.0
+Chiddington Ave,3167.0
+Chiddington Gate,2000.0
+Chippewa Dr,3000.0
+City Yard Entry,1000.0
+Clarence St,3800.0
+Clarke Rd,17725.0
+Colborne St,8364.0
+Colonel Talbot Rd,12630.0
+Colonel Talbot Rd - Ramp,3200.0
+Commissioners Rd E,26217.0
+Commissioners Rd E - Ramp,6500.0
+Commissioners Rd W,18150.0
+Commissioners Rd W - Ramp,15000.0
+Coombs Ave,2500.0
+Corley Dr,4000.0
+Coronation Dr,2167.0
+Cranbrook Rd,4000.0
+Creston Ave,1000.0
+Crumlin Sdrd,2725.0
+Dalmagarry Rd,3500.0
+Darnley Blvd,1000.0
+Dearness Dr,2833.0
+Decker Dr,1500.0
+Deer Park Cir,1250.0
+Derwent Rd,2000.0
+Deveron Cres,4333.0
+Dingman Dr,3800.0
+Doon Dr,3500.0
+Duchess Ave,1000.0
+Dufferin Ave,6000.0
+Dulaney Dr,1500.0
+Dundalk Dr,3500.0
+Dundas St,16069.0
+Dundas St - Ramp,10000.0
+Edgevalley Rd,1500.0
+Edward St,1000.0
+Egerton St,11000.0
+Elias St,3000.0
+Elizabeth St,1500.0
+Elliott St,2000.0
+Elmwood Ave E,2500.0
+Elviage Dr,1000.0
+Emery St E,1786.0
+Emery St W,3500.0
+Empress Ave,1000.0
+English St,1500.0
+Ensign Dr,700.0
+Epworth Ave,5000.0
+Ernest Ave,9300.0
+Estella Rd,1500.0
+Estevan Rd,1000.0
+Exeter Rd,19429.0
+Fairview Ave,2000.0
+Fanshawe College Blvd,9167.0
+Fanshawe Park Rd E,23861.0
+Fanshawe Park Rd W,28538.0
+Farnham Rd,5500.0
+Ferndale Ave,7500.0
+First St,5250.0
+Fitzwilliam Blvd,3500.0
+Florence St,14083.0
+Forward Ave,1500.0
+Foster Ave,1000.0
+Foxwood Ave,2000.0
+Frontenac Rd,2500.0
+Fuller St,3500.0
+Gainsborough Rd,11222.0
+Gardenwood Dr,2750.0
+Gatewood Rd,500.0
+Gideon Dr,3500.0
+Glanworth Dr,870.0
+Glengarry Ave,1500.0
+Glenora Dr,3375.0
+Glenroy Rd,2000.0
+Gore Rd,7438.0
+Grand Ave,4750.0
+Green Valley Rd,1000.0
+Greenwood Ave,3000.0
+Grenfell Dr,3750.0
+Grey St,1875.0
+Griffith St,2808.0
+Grosvenor St,2700.0
+Guildwood Blvd,2857.0
+Guildwood Gate,3500.0
+Hale St,7500.0
+Halls Mill Rd,2500.0
+Hamilton Rd,16174.0
+Hamlyn St,500.0
+Harry White Dr,7750.0
+Hartson Rd,1000.0
+Hastings Dr,2100.0
+Hastings Gate,1000.0
+Hawthorne Rd,1250.0
+Hazelden Lane,1500.0
+Headley Dr,1000.0
+Headley Gate,1000.0
+Hickory Rd,1000.0
+High St,4917.0
+Highbury Ave N,31920.0
+Highbury Ave S,27500.0
+Highbury Ave S - Ramp,8500.0
+Highview Ave E,3500.0
+Hillcrest Ave,1167.0
+Hillside Dr,1000.0
+Hillview Blvd,1750.0
+Homestead Cres,1000.0
+Homeview Rd,5000.0
+Homewood Lane,500.0
+Horton St E,21958.0
+Horton St W,20000.0
+Hubrey Rd,2000.0
+Hudson Dr,2000.0
+Hume St,2000.0
+Hunt Club Dr,1000.0
+Huntingdon Dr,2500.0
+Huron St,12604.0
+Huron St - Ramp,11000.0
+Hwy 401   E - Ramp,4333.0
+Hwy 401   W - Ramp,3875.0
+Hwy 402   E,5000.0
+Hwy 402   W - Ramp,4500.0
+Hyde Park Rd,21562.0
+Industrial Rd,5000.0
+Jackson Rd,3250.0
+Jacksway Cres,3000.0
+Jalna Blvd,4430.0
+James St,1000.0
+Jennifer Rd,2000.0
+Jensen Rd,1000.0
+John St,1000.0
+Juniper St,2500.0
+Kains Rd,4167.0
+Kernohan Pky,6000.0
+Kerr Rd,200.0
+Kilally Rd,3750.0
+Kilbourne Rd,3000.0
+Killarney Rd,3750.0
+King Edward Ave,2250.0
+King St,8375.0
+King St - Ramp,5500.0
+Kingsway Ave,1500.0
+Kipps Lane,6250.0
+Knights Bridge Rd,1500.0
+Laurel St,1000.0
+Lawson Rd,3900.0
+Legendary Dr,2500.0
+Limberlost Rd,1500.0
+Little Simcoe St,1500.0
+Littlewood Dr,4000.0
+Longwoods Rd,6833.0
+Longworth Rd,833.0
+Louise Blvd,2167.0
+Lyle St,2000.0
+Main St,14000.0
+Maitland St,4000.0
+Manchester Rd,1250.0
+Manitoulin Dr,1000.0
+Manning Dr,620.0
+Marconi Blvd,5500.0
+Marconi Gate,5500.0
+Mccallum Rd,2000.0
+Mcgarrell Dr,1000.0
+Mcgregor Ave,1500.0
+Mclean Dr,3000.0
+Mcmahen St,1500.0
+Mcmaster Dr,2000.0
+Mcnay St,2800.0
+Meadowgate Blvd,2375.0
+Meadowlands Way,1500.0
+Medway Park Dr,2000.0
+Meg Dr,2250.0
+Melsandra Ave,1500.0
+Merlin Cres,1000.0
+Milestone Rd,1000.0
+Millbank Dr,3667.0
+Monsarrat Ave,1000.0
+Montebello Dr,3000.0
+Montgomery Gate,3500.0
+Montgomery Rd,7250.0
+Morgan Ave,1000.0
+Mornington Ave,5000.0
+Morrison Rd,500.0
+Mount Pleasant Ave,750.0
+Mto Entry,2500.0
+Murray Rd,1500.0
+Nanette Dr,1000.0
+Newbold St,6500.0
+Nicole Ave,2000.0
+Nightingale Ave,2000.0
+Nixon Ave,10000.0
+North Centre Rd,7900.0
+North Routledge Pk,1500.0
+North St,4500.0
+North Wenige Dr,2000.0
+Notre Dame Dr,5500.0
+Nottinghill Rd,1250.0
+Oak Park Dr,1000.0
+Oakridge Dr,2000.0
+Oakville Ave,3000.0
+Old Hunt Rd,1500.0
+Old Victoria Rd,1350.0
+Ontario St,1900.0
+Optimist Park Dr,1000.0
+Osgoode Dr,1500.0
+Outer Dr,1000.0
+Oxford St E,26603.0
+Oxford St W,27560.0
+Pack Rd,3333.0
+Page St,1750.0
+Pall Mall St,6000.0
+Parkhurst Ave,1000.0
+Pelkey Rd,2000.0
+Phillbrook Dr,3000.0
+Piccadilly St,2000.0
+Pine St,2000.0
+Pine Valley Dr,2500.0
+Pine Valley Gate,3500.0
+Pinetree Dr,1000.0
+Pinnacle Pky,3267.0
+Pioneer Pky,1500.0
+Plane Tree Dr,3500.0
+Platt's Lane,8250.0
+Plymouth Ave,1000.0
+Pond Mills Rd,9700.0
+Pond View Rd,1500.0
+Preston St,500.0
+Prince Philip Dr,2000.0
+Proudfoot Lane,9100.0
+Quarrier Rd,1500.0
+Quebec St,11714.0
+Queens Ave,10233.0
+Quinella Dr,1000.0
+Railton Ave,2500.0
+Raleigh Blvd,1000.0
+Reagan Brne,350.0
+Reardon Blvd,750.0
+Rectory St,3700.0
+Regal Dr,750.0
+Regent St,3625.0
+Repton Ave,500.0
+Richmond St,21667.0
+Ridgewood Cres,1875.0
+Ridout St N,6350.0
+Ridout St N - Ramp,13500.0
+Ridout St S,10618.0
+River Rd,3667.0
+River Run Terr,1500.0
+Riverbend Rd,500.0
+Riverside Dr,16938.0
+Robin's Hill Rd,10875.0
+Rosecliffe Terr,5000.0
+Roxburgh Rd,7750.0
+Royal Cres,3500.0
+Royal York Rd,6200.0
+Sanatorium Rd,14667.0
+Sandford St,4800.0
+Sandybrook Dr,500.0
+Santa-monica Rd,1000.0
+Sarnia Rd,20455.0
+Saskatoon St,4500.0
+Scotchpine Cres,1000.0
+Scotland Dr,357.0
+Second St,7833.0
+Sharon Rd,1500.0
+Shavian Blvd,1000.0
+Sholto Dr,3000.0
+Shore Rd,2000.0
+Singleton Ave,1500.0
+Sise Rd,2000.0
+Skyline Ave,1500.0
+Sleightholme Ave,4000.0
+Sorrel Rd,3000.0
+South Carriage Rd,2500.0
+South St,2333.0
+South Wenige Dr,2800.0
+Southcrest Dr,1500.0
+Southdale Rd E,22118.0
+Southdale Rd W,19312.0
+Southminster Brne,667.0
+Sovereign Rd,1000.0
+Springbank Dr,18100.0
+St George St,4389.0
+St James St,2583.0
+Stackhouse Ave,3000.0
+Stanley St,11750.0
+Stoneybrook Cres,1750.0
+Sunningdale Rd E,10791.0
+Sunningdale Rd W,8786.0
+Sunnyside Dr,6833.0
+Sunray Ave,1000.0
+Talbot St,10333.0
+Taplow Rd,500.0
+Tartan Dr,1900.0
+Tavistock Rd,1250.0
+Taylor St,2000.0
+Teeple Terr,3000.0
+Thames St,3500.0
+Third St,5250.0
+Thistlewood Dr,1500.0
+Thompson Rd,11917.0
+Tillmann Rd,4000.0
+Topping Lane,4250.0
+Townsend Dr,1250.0
+Trafalgar St,10474.0
+Trossacks Ave,3500.0
+Trott Dr,2000.0
+Tweedsmuir Ave,3000.0
+Upper Queen St,13125.0
+Valetta St,2500.0
+Vancouver St,2500.0
+Verulam St,3500.0
+Vesta Rd,1000.0
+Veterans Memorial Pky,18852.0
+Victoria St,1722.0
+Village Green Ave,1792.0
+Villagewalk Blvd,1000.0
+Viscount Rd,6711.0
+Walnut St,2000.0
+Waterloo St,6714.0
+Wavell St,9250.0
+Webber Brne,200.0
+Webster St,1250.0
+Wellington Rd,33095.0
+Wellington Rd S,16667.0
+Wellington St,14875.0
+Westbury Ave,500.0
+Westdel Brne,4846.0
+Western Rd,22917.0
+Westminster Ave,10000.0
+Westminster Dr,891.0
+Weston St,1000.0
+Wexford Ave,1000.0
+Wharncliffe Rd N,24600.0
+Wharncliffe Rd S,27364.0
+Whetter Ave,2250.0
+Whisperwood Ave,500.0
+White Oak Rd,5408.0
+Whitehall Dr,1000.0
+Wickerson Rd,1750.0
+Wilkins St,3875.0
+William St,4500.0
+Willow Lane,1500.0
+Willsie Brne,100.0
+Wilson Ave,1500.0
+Wilton Grove Rd,5933.0
+Windermere Rd,10929.0
+Wonderland Rd N,34184.0
+Wonderland Rd S,22125.0
+Wonderland Rd S - Ramp,6500.0
+Woodhull Rd,500.0
+Woodward Ave,7667.0
+Wortley Rd,7462.0
+Wortley Rd - Ramp,1500.0
+Wychwood Pk,1500.0
+York St,18714.0
