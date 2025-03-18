@@ -105,6 +105,7 @@ class AttentionBiLSTM(nn.Module):
         embed2 = self.embedding2(emb2).to(torch.float32)
         embed3 = self.embedding3(emb3).to(torch.float32)
         embed4 = self.embedding4(emb4).to(torch.float32)
+        # Continous
         x = x[:, :, :8]
         
         x = torch.cat([x, embed1, embed2, embed3, embed4], dim=2)
@@ -141,15 +142,14 @@ class AttentionBiLSTM(nn.Module):
 model = AttentionBiLSTM(inputdim=12, hiddendim1=120, hiddendim2=60, outputdim=1, numheads=30, layerdim=1, dropout=0.4).to(device) # Bi Directional with Attention
 # loss_fcn = nn.SmoothL1Loss()
 loss_fcn = nn.MSELoss().to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.00001)
 
 
 # Training
-# print(len(train_batchs))
 print(next(model.parameters()).device)
 h1, c1, h2, c2 = None, None, None, None
 epochs = 15
-# Training
+
 model.train()
 from tqdm import tqdm
 
