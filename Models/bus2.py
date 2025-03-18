@@ -8,10 +8,11 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 # Import data
 
-df = pd.read_csv("102_with_climate.csv")
-df = df.sample(n=62700, random_state=42)
-data = df[['delay','stop_id','scheduled_time','vehicle_id','temperature']]
-embeds = df[['day_of_year','day','weather']]
+df = pd.read_csv("Data/CondensedDataFiles/102_traffic.csv")
+df = df.sample(n=100000, random_state=42)
+
+data = df[['delay','stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']]
+embeds = df[['day_of_year','day','weather','conditions']]
 data = data.fillna(0) # Fill with 0s if nan
 
 # Z score normalization
@@ -20,7 +21,7 @@ scaler = StandardScaler()
 
 data['delay'] = data['delay'].values/60
 data['delay'] = data_scaler.fit_transform(data[['delay']])
-data[['stop_id','scheduled_time','vehicle_id', 'temperature']] = scaler.fit_transform(data[['stop_id','scheduled_time','vehicle_id','temperature']])
+data[['stop_id','scheduled_time','vehicle_id', 'temperature','Windspeed','Visibility','Traffic']] = scaler.fit_transform(data[['stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']])
 
 data = pd.concat([data, embeds], axis=1)
 
@@ -54,7 +55,7 @@ def createSequences(data, seq_length):
         y_data = data[seq_length+i][0]
         if len(x_data) < seq_length:
             for i in range (seq_length - len(x_data)):
-                x_data.append(torch.zeros([1, 8]))
+                x_data.append(torch.zeros([1, 12]))
         x.append(x_data)
         y.append(y_data)
     return torch.stack(x, dim=0), torch.stack(y, dim=0)
@@ -68,6 +69,7 @@ class AttentionBiLSTM(nn.Module):
         self.embedding1 = nn.Embedding(num_embeddings=365, embedding_dim=1).to(device)
         self.embedding2 = nn.Embedding(num_embeddings=7, embedding_dim=1).to(device)
         self.embedding3 = nn.Embedding(num_embeddings=25, embedding_dim=1).to(device)
+        self.embedding4 = nn.Embedding(num_embeddings=3, embedding_dim=1).to(device)
 
         self.lstm1 = nn.LSTM(inputdim, hiddendim1, layerdim, batch_first=True, bidirectional=True).to(device)
         self.batchnorm = nn.BatchNorm1d(hiddendim1*2).to(device)
@@ -94,16 +96,18 @@ class AttentionBiLSTM(nn.Module):
             c2 = torch.zeros(self.layerdim*2, x.size(0), 60).to(self.device)   # Move to the correct device
         
         # Embeddings
-        emb1 = x[:, :, 5].to(torch.long)
-        emb2 = x[:, :, 6].to(torch.long)
-        emb3 = x[:, :, 7].to(torch.long)
+        emb1 = x[:, :, 8].to(torch.long)
+        emb2 = x[:, :, 9].to(torch.long)
+        emb3 = x[:, :, 10].to(torch.long)
+        emb4 = x[:, :, 11].to(torch.long)
         
         embed1 = self.embedding1(emb1).to(torch.float32)
         embed2 = self.embedding2(emb2).to(torch.float32)
         embed3 = self.embedding3(emb3).to(torch.float32)
-        x = x[:, :, :5]
+        embed4 = self.embedding4(emb4).to(torch.float32)
+        x = x[:, :, :8]
         
-        x = torch.cat([x, embed1, embed2, embed3], dim=2)
+        x = torch.cat([x, embed1, embed2, embed3, embed4], dim=2)
         # First LSTM
         out,(h1, c1) = self.lstm1(x, (h1,c1))
 
@@ -120,32 +124,31 @@ class AttentionBiLSTM(nn.Module):
         out, (h2, c2) = self.lstm2(out, (h2, c2))
 
         # Add attention layer
-        out, attn_weights = self.attention(query=out, key=out,value=out)
+        # out, attn_weights = self.attention(query=out, key=out,value=out)
         
         # last time step output
         out = out[:, -1, :]
         
+        out = self.dropout(out)
         out = self.batchnorm2(out)
         # Final dense layers
-        out = self.dropout(out)
+        # out = self.dropout(out)
         out = self.layers(out)
         return out, h1, c1, h2, c2
 
 
 # Model
-# model = LSTM(inputdim=4, outputdim=1, layerdim=1, dropout=0.2)  # NON Bidirectional
-# model = BiLSTM(inputdim=5, outputdim=1, layerdim=1, dropout=0.2)  # Bi Directional
-model = AttentionBiLSTM(inputdim=8, hiddendim1=120, hiddendim2=60, outputdim=1, numheads=30, layerdim=1, dropout=0.2).to(device) # Bi Directional with Attention
+model = AttentionBiLSTM(inputdim=12, hiddendim1=120, hiddendim2=60, outputdim=1, numheads=30, layerdim=1, dropout=0.4).to(device) # Bi Directional with Attention
 # loss_fcn = nn.SmoothL1Loss()
 loss_fcn = nn.MSELoss().to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 
 # Training
 # print(len(train_batchs))
 print(next(model.parameters()).device)
 h1, c1, h2, c2 = None, None, None, None
-epochs = 30
+epochs = 15
 # Training
 model.train()
 from tqdm import tqdm
