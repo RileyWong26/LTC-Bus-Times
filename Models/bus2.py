@@ -116,10 +116,10 @@ class AttentionBiLSTM(nn.Module):
         out = self.dropout(out)
 
         # Batch Normalization
-        batch_size, seq_len, hidd_size = out.shape
-        out = out.reshape(batch_size * seq_len, hidd_size)
-        out = self.batchnorm(out)
-        out = out.reshape(batch_size, seq_len, hidd_size)
+        # batch_size, seq_len, hidd_size = out.shape
+        # out = out.reshape(batch_size * seq_len, hidd_size)
+        # out = self.batchnorm(out)
+        # out = out.reshape(batch_size, seq_len, hidd_size)
 
         # Second LSTM layer
         out, (h2, c2) = self.lstm2(out, (h2, c2))
