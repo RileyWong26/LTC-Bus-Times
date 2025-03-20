@@ -83,11 +83,11 @@ class AttentionBiLSTM(nn.Module):
         self.layers = nn.Sequential(
             nn.Linear(120,60),
             nn.BatchNorm1d(60),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Linear(60,30),
             nn.Dropout(dropout),
             nn.BatchNorm1d(30),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Linear(30, outputdim)
         ).to(device)
     
@@ -145,7 +145,7 @@ class AttentionBiLSTM(nn.Module):
 model = AttentionBiLSTM(inputdim=12, hiddendim1=120, hiddendim2=60, outputdim=1, numheads=30, layerdim=1, dropout=0.5).to(device) # Bi Directional with Attention
 # loss_fcn = nn.SmoothL1Loss()
 loss_fcn = nn.MSELoss().to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001) 
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.001) 
 
 # Training
 print(next(model.parameters()).device)
