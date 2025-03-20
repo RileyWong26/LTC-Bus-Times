@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, RobustScaler
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
@@ -16,11 +16,14 @@ embeds = df[['day_of_year','day','weather','conditions']]
 data = data.fillna(0) # Fill with 0s if nan
 
 # Z score normalization
-data_scaler = StandardScaler() # Own seperate scaler for the delay, so we can inverse transform the output
-scaler = StandardScaler()
+# data_scaler = StandardScaler() # Own seperate scaler for the delay, so we can inverse transform the output
+# scaler = StandardScaler()
+data_scaler = RobustScaler() # ROBUST SCALER IS LESS SENSITIVE TO OUTLIERS
+scaler = RobustScaler()
 
 data['delay'] = data['delay'].values/60
 data['delay'] = data_scaler.fit_transform(data[['delay']])
+
 data[['stop_id','scheduled_time','vehicle_id', 'temperature','Windspeed','Visibility','Traffic']] = scaler.fit_transform(data[['stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']])
 
 data = pd.concat([data, embeds], axis=1)
@@ -32,8 +35,8 @@ train_set, test_set = train_test_split(data, test_size=0.2, random_state=42)
 train_set = train_set.sort_values(by=['day_of_year','scheduled_time'])
 test_set = test_set.sort_values(by=['day_of_year','scheduled_time'])
 
-print(train_set)
-print(test_set)
+# print(train_set)
+# print(test_set)
 
 # Setting device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -55,7 +58,7 @@ def createSequences(data, seq_length):
         y_data = data[seq_length+i][0]
         if len(x_data) < seq_length:
             for i in range (seq_length - len(x_data)):
-                x_data.append(torch.zeros([1, 12]))
+                x_data.append(torch.zeros([1, 11]))
         x.append(x_data)
         y.append(y_data)
     return torch.stack(x, dim=0), torch.stack(y, dim=0)
@@ -139,11 +142,10 @@ class AttentionBiLSTM(nn.Module):
 
 
 # Model
-model = AttentionBiLSTM(inputdim=12, hiddendim1=120, hiddendim2=60, outputdim=1, numheads=30, layerdim=1, dropout=0.4).to(device) # Bi Directional with Attention
+model = AttentionBiLSTM(inputdim=12, hiddendim1=120, hiddendim2=60, outputdim=1, numheads=30, layerdim=1, dropout=0.5).to(device) # Bi Directional with Attention
 # loss_fcn = nn.SmoothL1Loss()
 loss_fcn = nn.MSELoss().to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.00001)
-
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001) 
 
 # Training
 print(next(model.parameters()).device)
@@ -165,6 +167,8 @@ for epoch in bar:
         X_train, y_train = createSequences(batch, 30)
         y_train = y_train.reshape(-1,1)
         X_train = X_train.float()
+        # X_train = X_train[:, :, 1:]
+        # print(X_train.shape)
         
         if len(X_train) < batch_size-30:
             break
@@ -208,7 +212,7 @@ with torch.no_grad():
         
         y_test = y_test.reshape(-1,1)
         X_test = X_test.float()
-
+        # X_test = X_test[:, :, 1:]
         # print(X_test.shape)
 
         y_pred, h1, c1, h2, c2 = model(X_test, h1, c1, h2, c2)
@@ -221,7 +225,7 @@ with torch.no_grad():
 y_pred_list = torch.cat(y_pred_list, dim=0).cpu().numpy()
 y_test_list = torch.cat(y_test_list, dim=0).cpu().numpy()
 
-
+#  ----- INVERSE SCALE ----------
 y_pred_list = data_scaler.inverse_transform(y_pred_list)
 y_test_list = data_scaler.inverse_transform(y_test_list)
 # test_loss = inverse_Z_Score(test_loss)
