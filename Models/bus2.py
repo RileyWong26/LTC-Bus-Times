@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
+from matplotlib import pyplot as plt
 from sklearn.preprocessing import StandardScaler, RobustScaler
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler
 from sklearn.preprocessing import LabelEncoder
@@ -18,13 +19,14 @@ data = data.fillna(0) # Fill with 0s if nan
 # Z score normalization
 # data_scaler = StandardScaler() # Own seperate scaler for the delay, so we can inverse transform the output
 # scaler = StandardScaler()
-data_scaler = RobustScaler() # ROBUST SCALER IS LESS SENSITIVE TO OUTLIERS
+data_scaler1 = RobustScaler() # ROBUST SCALER IS LESS SENSITIVE TO OUTLIERS
+data_scaler2 = RobustScaler() # ROBUST SCALER IS LESS SENSITIVE TO OUTLIERS
 scaler = RobustScaler()
 
 data['delay'] = data['delay'].values/60
-data['delay'] = data_scaler.fit_transform(data[['delay']])
+# data['delay'] = data_scaler.fit_transform(data[['delay']])
 
-data[['stop_id','scheduled_time','vehicle_id', 'temperature','Windspeed','Visibility','Traffic']] = scaler.fit_transform(data[['stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']])
+# data[['stop_id','scheduled_time','vehicle_id', 'temperature','Windspeed','Visibility','Traffic']] = scaler.fit_transform(data[['stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']])
 
 data = pd.concat([data, embeds], axis=1)
 
@@ -34,6 +36,20 @@ train_set, test_set = train_test_split(data, test_size=0.2, random_state=42)
 # Sort so there is some sort of order in the sequences
 train_set = train_set.sort_values(by=['day_of_year','scheduled_time'])
 test_set = test_set.sort_values(by=['day_of_year','scheduled_time'])
+
+# ---- SCALING -----
+train_set[['stop_id','scheduled_time','vehicle_id', 'temperature','Windspeed','Visibility','Traffic']] = scaler.fit_transform(train_set[['stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']])
+train_set['delay'] = data_scaler1.fit_transform(train_set[['delay']])
+
+test_set[['stop_id','scheduled_time','vehicle_id', 'temperature','Windspeed','Visibility','Traffic']] = scaler.fit_transform(test_set[['stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']])
+test_set['delay'] = data_scaler2.fit_transform(test_set[['delay']])
+
+# print(train_set['delay'])
+# print(test_set['delay'])
+# print(data_scaler1.fit_transform(train_set[['delay']]))
+# print(data_scaler2.fit_transform(test_set[['delay']]))
+# print(data_scaler1.inverse_transform(train_set[['delay']]))
+# print(data_scaler2.inverse_transform(test_set[['delay']]))
 
 # print(train_set)
 # print(test_set)
@@ -75,8 +91,9 @@ class AttentionBiLSTM(nn.Module):
         self.embedding4 = nn.Embedding(num_embeddings=3, embedding_dim=1).to(device)
 
         self.lstm1 = nn.LSTM(inputdim, hiddendim1, layerdim, batch_first=True, bidirectional=True).to(device)
-        self.batchnorm = nn.BatchNorm1d(hiddendim1*2).to(device)
-        self.batchnorm2 = nn.BatchNorm1d(hiddendim2*2).to(device)
+        self.layernorm = nn.LayerNorm((90, 30, 8)).to(device)
+        self.batchnorm = nn.LayerNorm((90, 30, hiddendim1*2)).to(device)
+        self.batchnorm2 = nn.LayerNorm(hiddendim2*2).to(device)
         self.dropout = nn.Dropout(dropout).to(device)
         self.lstm2 = nn.LSTM(hiddendim1*2, hiddendim2, layerdim, batch_first=True, bidirectional=True).to(device)
         self.attention = nn.MultiheadAttention(embed_dim=120, num_heads=numheads, batch_first=True).to(device)
@@ -85,8 +102,8 @@ class AttentionBiLSTM(nn.Module):
             nn.BatchNorm1d(60),
             nn.LeakyReLU(),
             nn.Linear(60,30),
-            nn.Dropout(dropout),
             nn.BatchNorm1d(30),
+            nn.Dropout(dropout),
             nn.LeakyReLU(),
             nn.Linear(30, outputdim)
         ).to(device)
@@ -108,33 +125,42 @@ class AttentionBiLSTM(nn.Module):
         embed2 = self.embedding2(emb2).to(torch.float32)
         embed3 = self.embedding3(emb3).to(torch.float32)
         embed4 = self.embedding4(emb4).to(torch.float32)
+
         # Continous
         x = x[:, :, :8]
+
+        # Normalize
+        # x = self.layernorm(x)
         
         x = torch.cat([x, embed1, embed2, embed3, embed4], dim=2)
+        
+        # --DROP OUT --
+        x = self.dropout(x)
+
         # First LSTM
         out,(h1, c1) = self.lstm1(x, (h1,c1))
-
-        # Drop out between layers
-        out = self.dropout(out)
 
         # Batch Normalization
         # batch_size, seq_len, hidd_size = out.shape
         # out = out.reshape(batch_size * seq_len, hidd_size)
-        # out = self.batchnorm(out)
+        out = self.batchnorm(out)
         # out = out.reshape(batch_size, seq_len, hidd_size)
+
+        # Drop out between layers
+        out = self.dropout(out)
 
         # Second LSTM layer
         out, (h2, c2) = self.lstm2(out, (h2, c2))
 
         # Add attention layer
         # out, attn_weights = self.attention(query=out, key=out,value=out)
+
+        out = self.dropout(out)
+        out = self.batchnorm2(out)
         
         # last time step output
         out = out[:, -1, :]
-        
-        out = self.dropout(out)
-        out = self.batchnorm2(out)
+
         # Final dense layers
         # out = self.dropout(out)
         out = self.layers(out)
@@ -142,10 +168,10 @@ class AttentionBiLSTM(nn.Module):
 
 
 # Model
-model = AttentionBiLSTM(inputdim=12, hiddendim1=120, hiddendim2=60, outputdim=1, numheads=30, layerdim=1, dropout=0.5).to(device) # Bi Directional with Attention
+model = AttentionBiLSTM(inputdim=12, hiddendim1=120, hiddendim2=60, outputdim=1, numheads=30, layerdim=1, dropout=0.2).to(device) # Bi Directional with Attention
 # loss_fcn = nn.SmoothL1Loss()
 loss_fcn = nn.MSELoss().to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.001) 
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4, amsgrad=True) 
 
 # Training
 print(next(model.parameters()).device)
@@ -179,6 +205,7 @@ for epoch in bar:
 
         # Train
         pred, h1, c1, h2, c2 = model(X_train, h1, c1, h2, c2)
+
         loss = loss_fcn(pred, y_train)
         
         loss.backward(retain_graph=True)  
@@ -226,8 +253,8 @@ y_pred_list = torch.cat(y_pred_list, dim=0).cpu().numpy()
 y_test_list = torch.cat(y_test_list, dim=0).cpu().numpy()
 
 #  ----- INVERSE SCALE ----------
-y_pred_list = data_scaler.inverse_transform(y_pred_list)
-y_test_list = data_scaler.inverse_transform(y_test_list)
+y_pred_list = data_scaler2.inverse_transform(y_pred_list)
+y_test_list = data_scaler2.inverse_transform(y_test_list)
 # test_loss = inverse_Z_Score(test_loss)
 
 data_verify = pd.DataFrame(y_test_list.tolist(), columns=["Test"])
@@ -247,4 +274,28 @@ print(f"Average Loss: {(test_loss/test_batch_count):.5f}")
 print(f"Average Difference: {total_difference/len(final_output['difference']):.5f}")
 print(f"Standard deviation for the predictions: {pred_dev:.5f}")
 print(f"Prediction mean: {pred_mean:.5f}")
-# print(final_output['Predictions'])
+
+less1, less2, less3, less5, less8, less10, great10 = 0, 0, 0, 0, 0 ,0,0
+for entry in final_output['difference'].values:
+    if entry < 1:
+        less1+=1
+    elif 1<= entry < 2:
+        less2 +=1
+    elif 2<= entry < 3:
+        less3 += 1
+    elif 3<= entry < 4:
+        less5 +=1
+    elif 4<= entry < 5:
+        less8 += 1
+    elif 5<= entry < 10:
+        less10 += 1
+    else:
+        great10 += 1
+    
+vals = [less1, less2, less3, less5, less8, less10, great10]
+lbls = ['<1 minute', '1-2 minute','2-3 minute', '3-4 minute', '4-5 minute', '5-10 minute', '>10']
+colors = ("lime", "springgreen","palegreen","greenyellow","gold","orange","red")
+
+fig = plt.figure(figsize=(10, 10))
+plt.pie(vals, labels=lbls, autopct='%.2f')
+plt.show()
