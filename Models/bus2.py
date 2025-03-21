@@ -102,9 +102,9 @@ class AttentionBiLSTM(nn.Module):
             nn.BatchNorm1d(60),
             nn.LeakyReLU(),
             nn.Linear(60,30),
+            nn.LeakyReLU(),
             nn.BatchNorm1d(30),
             nn.Dropout(dropout),
-            nn.LeakyReLU(),
             nn.Linear(30, outputdim)
         ).to(device)
     
@@ -298,4 +298,5 @@ colors = ("lime", "springgreen","palegreen","greenyellow","gold","orange","red")
 
 fig = plt.figure(figsize=(10, 10))
 plt.pie(vals, labels=lbls, autopct='%.2f')
+plt.savefig('output.jpg')
 plt.show()
