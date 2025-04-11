@@ -141,10 +141,8 @@ class AttentionBiLSTM(nn.Module):
         out,(h1, c1) = self.lstm1(x, (h1,c1))
 
         # Batch Normalization
-        # batch_size, seq_len, hidd_size = out.shape
-        # out = out.reshape(batch_size * seq_len, hidd_size)
+        
         out = self.batchnorm(out)
-        # out = out.reshape(batch_size, seq_len, hidd_size)
 
         # Drop out between layers
         out = self.dropout(out)
@@ -219,6 +217,10 @@ for epoch in bar:
         optimizer.step()
     
     bar.set_description(f"Epoch: {epoch}, Loss: {epoch_loss/batch_count:.4f}")
+
+
+# ------SAVE ------
+torch.save(model.state_dict(), "output.pth")
 
 # Evaluation
 y_test_list, y_pred_list = [], []
