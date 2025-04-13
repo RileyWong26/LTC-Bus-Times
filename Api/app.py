@@ -11,6 +11,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from sklearn.preprocessing import LabelEncoder
 import time
+import math
 
 # Configure logging
 logging.basicConfig(
@@ -220,7 +221,7 @@ def map_stop_id(stop_id):
         # If we have a mapping and the stop_id is in the mapping
         if stop_id_mapping and stop_id in stop_id_mapping:
             numeric_id = stop_id_mapping[stop_id]
-            logger.info(f"Mapped stop_id '{stop_id}' to numeric value {numeric_id}")
+            # logger.info(f"Mapped stop_id '{stop_id}' to numeric value {numeric_id}")
             return numeric_id
         
         # If stop_id is already numeric, return it
@@ -429,7 +430,6 @@ def preprocess_input(unix_time, stop_id, time_sequence):
         
         # Reshape for LSTM model - (batch_size, sequence_length, input_dim)
         model_input = torch.FloatTensor(normalized_features).view(1, sequence_length, -1)
-        print(model_input.shape)
         
         return model_input
     except Exception as e:
@@ -488,8 +488,6 @@ def predict():
         
         # Get scheduled time, delay, traffic_volume at stop
         time_sequence, scheduled_time = get_scheduled_time(gtfs_data, route_id, stop_id)
-        # print(len(scheduled_time))
-        # print(scheduled_time)
         if scheduled_time is None:
             return jsonify({"error": f"No scheduled time found for route {route_id} at stop {stop_id}"}), 404
 
@@ -499,7 +497,7 @@ def predict():
             return jsonify({"error": "Failed to preprocess input data"}), 500
         
         # Make prediction
-        predicted_delay = make_prediction(model_input)
+        predicted_delay = math.ceil(make_prediction(model_input) * 60)
         if predicted_delay is None:
             return jsonify({"error": "Failed to make prediction"}), 500
         
