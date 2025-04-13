@@ -9,6 +9,7 @@ import json
 from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from sklearn.preprocessing import LabelEncoder
 import time
 
 # Configure logging
@@ -38,6 +39,7 @@ model = None
 feature_scaler = None
 target_scaler = None
 stop_id_mapping = None
+traffic_volume_map = None
 
     
 class BiLSTMModel(nn.Module):
@@ -52,8 +54,7 @@ class BiLSTMModel(nn.Module):
         self.embedding4 = nn.Embedding(num_embeddings=3, embedding_dim=1).to(device)
 
         self.lstm1 = nn.LSTM(inputdim, hiddendim1, layerdim, batch_first=True, bidirectional=True).to(device)
-        self.layernorm = nn.LayerNorm((90, 30, 8)).to(device)
-        self.batchnorm = nn.LayerNorm((90, 30, hiddendim1*2)).to(device)
+        self.batchnorm = nn.LayerNorm((1, 1, hiddendim1*2)).to(device)
         self.batchnorm2 = nn.LayerNorm(hiddendim2*2).to(device)
         self.dropout = nn.Dropout(dropout).to(device)
         self.lstm2 = nn.LSTM(hiddendim1*2, hiddendim2, layerdim, batch_first=True, bidirectional=True).to(device)
@@ -115,10 +116,52 @@ class BiLSTMModel(nn.Module):
         # Final dense layers
         out = self.layers(out)
         return out
+    
+def load_weather():
+    """load Weather api"""
+    try:
+        with open("key.txt", "r") as key_file:
+            key = key_file.readline()
+        response = requests.get(f"https://api.openweathermap.org/data/2.5/weather?q=london,CA&units=metric&APPID={key}", timeout=10)
+        response.raise_for_status
+        text = response.json()
+        return text
+    except Exception as e:
+            logger.error(f"Error involving the weather api")
+            return None
+
+def weather_data(weather_api):
+    """Obtain data from weather api"""
+
+    # Obtain relevant weather data 
+    weather = weather_api.get('weather', [])[0].get('main')
+    visibility = weather_api.get('visibility') // 1000
+    wind_spd = weather_api.get('wind', {}).get('speed')
+    temperature = weather_api.get('main', {}).get('feels_like')
+    condition = 0
+
+    # encoding of the seriousness of the weather
+    if (0.5< visibility< 2.0 ) or (25.0 < wind_spd < 35.0):
+        condition  = 1
+    elif (visibility <= 0.5) or (wind_spd >= 35.0):
+        condition = 2
+    else:
+        condition = 0
+
+    # Weather encode
+    encoder = LabelEncoder()
+    encoder.classes_ = np.load('weather.npy',allow_pickle=True)
+    # print(encoder.classes_)
+    try:
+        weather = encoder.transform(weather)
+    except Exception as e:
+        weather = 0
+
+    return weather, visibility, wind_spd, temperature, condition
 
 def load_model_and_scalers():
     """Load the trained LSTM model and scalers"""
-    global model, feature_scaler, target_scaler, stop_id_mapping
+    global model, feature_scaler, target_scaler, stop_id_mapping, traffic_volume_map
     
     try:
         # Load the model
@@ -128,7 +171,7 @@ def load_model_and_scalers():
         logger.info(f"Using device: {device}")
         
         # Initialize model with correct architecture to match saved weights
-        input_dim = 6  # Number of features
+        input_dim = 12 # Number of features
         hidden_dim = 120
         hidden_dim2 = 60
         output_dim = 1
@@ -162,6 +205,14 @@ def load_model_and_scalers():
             logger.error(f"Error loading stop ID mapping: {str(mapping_error)}")
             stop_id_mapping = {}
         
+        try:
+            with open('Traffic_mapping.json', 'r') as f:
+                traffic_volume_map = json.load(f)
+            logger.info(f"Loaded Traffic volume with {len(traffic_volume_map)} entries")
+        except Exception as e:
+            logger.error(f"Error Traffic volume mapping: {str(traffic_volume_map)}")
+            traffic_volume_map = {}
+
         logger.info("Model and scalers loaded successfully")
         return True
     except Exception as e:
@@ -214,6 +265,9 @@ def get_scheduled_time(gtfs_data, route_id, stop_id):
         # If stop_id is numeric, also try to find its string representation
         numeric_stop_id = stop_id
         string_stop_id = None
+
+        # volume
+        traffic_volume = 0
         
         if isinstance(stop_id, (int, float)) or (isinstance(stop_id, str) and stop_id.isdigit()):
             # If we have a numeric stop_id, find the corresponding string ID
@@ -232,12 +286,20 @@ def get_scheduled_time(gtfs_data, route_id, stop_id):
                 numeric_stop_id = stop_id_mapping[stop_id]
                 logger.info(f"Found numeric representation of stop_id {string_stop_id}: {numeric_stop_id}")
         
+        # Traffic around the stop
+        if string_stop_id in traffic_volume_map:
+            traffic_volume = traffic_volume_map[string_stop_id]
+
+        # Vehicle Id
+        vehicle_id = 0
+
         # Collect routes and stops for debugging
         found_routes = set()
         found_stops = set()
         
         for i, entity in enumerate(gtfs_data['entity']):
             trip_update = entity.get('trip_update', {})
+            vehicle_id = trip_update.get('vehicle', {}).get('id')
             trip_info = trip_update.get('trip', {})
             
             # Collect route IDs for debugging
@@ -263,15 +325,15 @@ def get_scheduled_time(gtfs_data, route_id, stop_id):
                         
                         # Check for arrival time first, then departure time
                         arrival = stop_update.get('arrival', {})
-                        if arrival and arrival.get('time'):
+                        if arrival and arrival.get('time') and arrival.get('delay'):
                             logger.info(f"Found arrival time: {arrival.get('time')}")
-                            return arrival.get('time')
+                            return arrival.get('time'), arrival.get('delay')/60, traffic_volume, vehicle_id
                             
                         # If no arrival time, try departure time
                         departure = stop_update.get('departure', {})
-                        if departure and departure.get('time'):
+                        if departure and departure.get('time') and departure.get('delay'):
                             logger.info(f"Found departure time: {departure.get('time')}")
-                            return departure.get('time')
+                            return departure.get('time'), departure.get('delay')/60, traffic_volume, vehicle_id
         
         # If we get here, we didn't find a match
         logger.warning(f"No scheduled time found for route {route_id} at stop {stop_id}")
@@ -287,12 +349,11 @@ def get_scheduled_time(gtfs_data, route_id, stop_id):
         # For testing purposes, return a scheduled time 15 minutes from now
         return int(time.time()) + 900
 
-def preprocess_input(unix_time, stop_id, scheduled_time):
+def preprocess_input(unix_time, stop_id, scheduled_time, delay, traffic_volume, vehicle_id):
     """Preprocess the input data for the model"""
     try:
         # Convert Unix time to datetime
         dt = datetime.fromtimestamp(unix_time)
-        
         # Extract relevant features
         day_of_week = dt.weekday()  # 0-6 (Monday-Sunday)
         day_of_year = dt.timetuple().tm_yday  # 1-366
@@ -311,20 +372,37 @@ def preprocess_input(unix_time, stop_id, scheduled_time):
         
         # Map string stop_id to numeric value
         numeric_stop_id = map_stop_id(stop_id)
+
+        # Weather data 
+        weather, visibility, wind_spd, temperature, condition = weather_data(load_weather())
+        print(f"Weather {weather}, visibility {visibility}, wind speed {wind_spd}, condition {condition}")
         
         # Create features DataFrame
         features = pd.DataFrame({
+            'delay': [delay],
             'stop_id': [numeric_stop_id],
-            'day': [day_of_week],
-            'day_of_year': [day_of_year],
             'scheduled_time': [scheduled_hour * 60 + scheduled_minute],  # Convert to minutes from midnight
-            'hour': [hour],
-            'minute': [minute]
+            'vehicle_id' : [vehicle_id],
+            'temperature' : [temperature],
+            'Windspeed' : [wind_spd],
+            'Visibility':[visibility],
+            'Traffic': [traffic_volume],
+        })
+        embeds = pd.DataFrame({
+            'day_of_year': [day_of_year],
+            'day': [day_of_week],
+            'weather': [weather],
+            'conditions': [condition]
         })
         
         # Normalize features
-        normalized_features = feature_scaler.transform(features)
-        
+        features[['stop_id','scheduled_time','vehicle_id', 'temperature','Windspeed','Visibility','Traffic']] = feature_scaler.transform(features[['stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']])
+        features[['delay']] = target_scaler.transform(features[['delay']])
+
+
+        normalized_features = pd.concat([features, embeds], axis=1)
+        normalized_features = normalized_features.to_numpy()
+
         # LSTMModel expects sequence input (batch_size, sequence_length, input_dim)
         sequence_length = 1  # For LSTMModel, we can use a single time step
         
@@ -369,7 +447,6 @@ def predict():
     try:
         # Get JSON input
         data = request.get_json()
-        
         if not data:
             return jsonify({"error": "No input data provided"}), 400
         
@@ -388,15 +465,17 @@ def predict():
             logger.warning("Could not fetch GTFS data, using mock data for testing")
             gtfs_data = {"entity": []}
         
-        # Get scheduled time
-        scheduled_time = get_scheduled_time(gtfs_data, route_id, stop_id)
+        # Get scheduled time, delay, traffic_volume at stop
+        scheduled_time, delay, traffic_volume, vehicle_id = get_scheduled_time(gtfs_data, route_id, stop_id)
+        print("TIme" , scheduled_time, "delay", delay, "Traffic volume", traffic_volume, "Vehicle id", vehicle_id)
         if not scheduled_time:
             return jsonify({"error": f"No scheduled time found for route {route_id} at stop {stop_id}"}), 404
-        
+
         # Preprocess input
-        model_input = preprocess_input(current_time, stop_id, scheduled_time)
+        model_input = preprocess_input(current_time, stop_id, scheduled_time, delay, traffic_volume, vehicle_id)
         if model_input is None:
             return jsonify({"error": "Failed to preprocess input data"}), 500
+        print(model_input)
         
         # Make prediction
         predicted_delay = make_prediction(model_input)
@@ -441,4 +520,5 @@ initialize()
 if __name__ == '__main__':
     # Run the Flask app
     port = int(os.environ.get("PORT", 5001))
+    print(port)
     app.run(host='0.0.0.0', port=port, debug=False)
