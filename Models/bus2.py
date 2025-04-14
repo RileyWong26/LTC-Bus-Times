@@ -7,6 +7,7 @@ from sklearn.preprocessing import StandardScaler, RobustScaler
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from pickle import dump
 # Import data
 
 df = pd.read_csv("Data/CondensedDataFiles/102_traffic.csv")
@@ -21,6 +22,7 @@ data = data.fillna(0) # Fill with 0s if nan
 # scaler = StandardScaler()
 data_scaler1 = RobustScaler() # ROBUST SCALER IS LESS SENSITIVE TO OUTLIERS
 data_scaler2 = RobustScaler() # ROBUST SCALER IS LESS SENSITIVE TO OUTLIERS
+
 scaler = RobustScaler()
 
 data['delay'] = data['delay'].values/60
@@ -41,6 +43,10 @@ test_set = test_set.sort_values(by=['day_of_year','scheduled_time'])
 train_set[['stop_id','scheduled_time','vehicle_id', 'temperature','Windspeed','Visibility','Traffic']] = scaler.fit_transform(train_set[['stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']])
 train_set['delay'] = data_scaler1.fit_transform(train_set[['delay']])
 
+# --- SAVE SCALERS -----
+dump(scaler, open("feature_scaler.pkl", 'wb'))
+dump(data_scaler1, open("target_scaler.pkl", 'wb'))
+
 test_set[['stop_id','scheduled_time','vehicle_id', 'temperature','Windspeed','Visibility','Traffic']] = scaler.fit_transform(test_set[['stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']])
 test_set['delay'] = data_scaler2.fit_transform(test_set[['delay']])
 
@@ -57,7 +63,7 @@ test_set['delay'] = data_scaler2.fit_transform(test_set[['delay']])
 # Setting device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
-batch_size = 120
+batch_size = 31
 
 # Batches
 train_data = torch.tensor(train_set.values, dtype=torch.float32).to(device)
@@ -72,12 +78,12 @@ def createSequences(data, seq_length):
     for i in range(len(data) - seq_length):
         x_data = data[i:(seq_length+i)]
         y_data = data[seq_length+i][0]
-        if len(x_data) < seq_length:
-            for i in range (seq_length - len(x_data)):
-                x_data.append(torch.zeros([1, 11]))
         x.append(x_data)
         y.append(y_data)
-    return torch.stack(x, dim=0), torch.stack(y, dim=0)
+    try:
+        return torch.stack(x, dim=0), torch.stack(y, dim=0)
+    except Exception as e:
+        return None, None
 
 class AttentionBiLSTM(nn.Module):
     def __init__(self, inputdim, hiddendim1, hiddendim2, outputdim, numheads, layerdim, dropout):
@@ -91,19 +97,15 @@ class AttentionBiLSTM(nn.Module):
         self.embedding4 = nn.Embedding(num_embeddings=3, embedding_dim=1).to(device)
 
         self.lstm1 = nn.LSTM(inputdim, hiddendim1, layerdim, batch_first=True, bidirectional=True).to(device)
-        self.layernorm = nn.LayerNorm((90, 30, 8)).to(device)
-        self.batchnorm = nn.LayerNorm((90, 30, hiddendim1*2)).to(device)
-        self.batchnorm2 = nn.LayerNorm(hiddendim2*2).to(device)
+        self.batchnorm = nn.LayerNorm((1, 30, hiddendim1*2)).to(device)
+        self.batchnorm2 = nn.LayerNorm([1, 30, hiddendim2*2]).to(device)
         self.dropout = nn.Dropout(dropout).to(device)
         self.lstm2 = nn.LSTM(hiddendim1*2, hiddendim2, layerdim, batch_first=True, bidirectional=True).to(device)
-        self.attention = nn.MultiheadAttention(embed_dim=120, num_heads=numheads, batch_first=True).to(device)
         self.layers = nn.Sequential(
-            nn.Linear(120,60),
-            nn.BatchNorm1d(60),
+            nn.Linear(120, 60),
             nn.LeakyReLU(),
             nn.Linear(60,30),
             nn.LeakyReLU(),
-            nn.BatchNorm1d(30),
             nn.Dropout(dropout),
             nn.Linear(30, outputdim)
         ).to(device)
@@ -141,7 +143,6 @@ class AttentionBiLSTM(nn.Module):
         out,(h1, c1) = self.lstm1(x, (h1,c1))
 
         # Batch Normalization
-        
         out = self.batchnorm(out)
 
         # Drop out between layers
@@ -150,15 +151,12 @@ class AttentionBiLSTM(nn.Module):
         # Second LSTM layer
         out, (h2, c2) = self.lstm2(out, (h2, c2))
 
-        # Add attention layer
-        # out, attn_weights = self.attention(query=out, key=out,value=out)
-
         out = self.dropout(out)
         out = self.batchnorm2(out)
         
         # last time step output
         out = out[:, -1, :]
-
+        
         # Final dense layers
         # out = self.dropout(out)
         out = self.layers(out)
@@ -189,13 +187,12 @@ for epoch in bar:
         optimizer.zero_grad() # Reset your gradient
         # Create sequences
         X_train, y_train = createSequences(batch, 30)
+        if X_train == None: 
+            break
         y_train = y_train.reshape(-1,1)
         X_train = X_train.float()
         # X_train = X_train[:, :, 1:]
-        # print(X_train.shape)
         
-        if len(X_train) < batch_size-30:
-            break
 
         # Move hidden states to the correct device
         if h1 is not None:
