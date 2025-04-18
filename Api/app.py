@@ -61,6 +61,7 @@ class BiLSTMModel(nn.Module):
         self.lstm2 = nn.LSTM(hiddendim1*2, hiddendim2, layerdim, batch_first=True, bidirectional=True).to(device)
         self.layers = nn.Sequential(
             nn.Linear(hiddendim2*2,60),
+            nn.LayerNorm(60),
             nn.LeakyReLU(),
             nn.Linear(60,30),
             nn.LeakyReLU(),
@@ -97,11 +98,11 @@ class BiLSTMModel(nn.Module):
         # First LSTM
         out,(h1, c1) = self.lstm1(x, (h1,c1))
 
-        # Normalization
-        out = self.batchnorm(out)
-
         # Drop out between layers
         out = self.dropout(out)
+
+        # Normalization
+        out = self.batchnorm(out)
 
         # Second LSTM layer
         out, (h2, c2) = self.lstm2(out, (h2, c2))

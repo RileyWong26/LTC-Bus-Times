@@ -50,22 +50,12 @@ dump(data_scaler1, open("target_scaler.pkl", 'wb'))
 test_set[['stop_id','scheduled_time','vehicle_id', 'temperature','Windspeed','Visibility','Traffic']] = scaler.fit_transform(test_set[['stop_id','scheduled_time','vehicle_id','temperature','Windspeed','Visibility','Traffic']])
 test_set['delay'] = data_scaler2.fit_transform(test_set[['delay']])
 
-# print(train_set['delay'])
-# print(test_set['delay'])
-# print(data_scaler1.fit_transform(train_set[['delay']]))
-# print(data_scaler2.fit_transform(test_set[['delay']]))
-# print(data_scaler1.inverse_transform(train_set[['delay']]))
-# print(data_scaler2.inverse_transform(test_set[['delay']]))
-
-# print(train_set)
-# print(test_set)
-
 # Setting device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device}")
-batch_size = 31
 
 # Batches
+batch_size = 31
 train_data = torch.tensor(train_set.values, dtype=torch.float32).to(device)
 test_data = torch.tensor(test_set.values, dtype=torch.float32).to(device)
 
@@ -86,7 +76,7 @@ def createSequences(data, seq_length):
         return None, None
 
 class AttentionBiLSTM(nn.Module):
-    def __init__(self, inputdim, hiddendim1, hiddendim2, outputdim, numheads, layerdim, dropout):
+    def __init__(self, inputdim, hiddendim1, hiddendim2, outputdim, layerdim, dropout):
         super(AttentionBiLSTM, self).__init__()
         self.layerdim = layerdim
         self.device = device  # Store the device as an instance variable
@@ -103,6 +93,7 @@ class AttentionBiLSTM(nn.Module):
         self.lstm2 = nn.LSTM(hiddendim1*2, hiddendim2, layerdim, batch_first=True, bidirectional=True).to(device)
         self.layers = nn.Sequential(
             nn.Linear(120, 60),
+            nn.LayerNorm(60),
             nn.LeakyReLU(),
             nn.Linear(60,30),
             nn.LeakyReLU(),
@@ -142,11 +133,11 @@ class AttentionBiLSTM(nn.Module):
         # First LSTM
         out,(h1, c1) = self.lstm1(x, (h1,c1))
 
-        # Batch Normalization
-        out = self.batchnorm(out)
-
         # Drop out between layers
         out = self.dropout(out)
+
+        # Batch Normalization
+        out = self.batchnorm(out)
 
         # Second LSTM layer
         out, (h2, c2) = self.lstm2(out, (h2, c2))
@@ -164,8 +155,12 @@ class AttentionBiLSTM(nn.Module):
 
 
 # Model
-model = AttentionBiLSTM(inputdim=12, hiddendim1=120, hiddendim2=60, outputdim=1, numheads=30, layerdim=1, dropout=0.2).to(device) # Bi Directional with Attention
-# loss_fcn = nn.SmoothL1Loss()
+model = AttentionBiLSTM(inputdim=12, hiddendim1=120, hiddendim2=60, outputdim=1, layerdim=1, dropout=0.2).to(device) # Bi Directional with Attention
+
+# Continue training existing model
+model_path = "output.pth"
+model.load_state_dict(torch.load(model_path, map_location=device))
+
 loss_fcn = nn.MSELoss().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4, amsgrad=True) 
 
@@ -233,7 +228,7 @@ with torch.no_grad():
         X_test, y_test= createSequences(batch, 30)
 
         # Pad with zeros
-        if len(X_test) < batch_size-30:
+        if X_test == None:
             break
         
         y_test = y_test.reshape(-1,1)
