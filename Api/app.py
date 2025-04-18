@@ -132,29 +132,33 @@ def load_weather():
 def weather_data(weather_api):
     """Obtain data from weather api"""
 
-    # Obtain relevant weather data 
-    weather = weather_api.get('weather', [])[0].get('main')
-    visibility = weather_api.get('visibility') // 1000
-    wind_spd = weather_api.get('wind', {}).get('speed')
-    temperature = weather_api.get('main', {}).get('feels_like')
-    condition = 0
-
-    # encoding of the seriousness of the weather
-    if (0.5< visibility< 2.0 ) or (25.0 < wind_spd < 35.0):
-        condition  = 1
-    elif (visibility <= 0.5) or (wind_spd >= 35.0):
-        condition = 2
-    else:
+    try:
+        # Obtain relevant weather data 
+        weather = weather_api.get('weather', [])[0].get('main')
+        visibility = weather_api.get('visibility') // 1000
+        wind_spd = weather_api.get('wind', {}).get('speed')
+        temperature = weather_api.get('main', {}).get('feels_like')
         condition = 0
 
-    # Weather encode
-    encoder = LabelEncoder()
-    encoder.classes_ = np.load('weather.npy',allow_pickle=True)
-    # print(encoder.classes_)
-    try:
-        weather = encoder.transform(weather)
+        # encoding of the seriousness of the weather
+        if (0.5< visibility< 2.0 ) or (25.0 < wind_spd < 35.0):
+            condition  = 1
+        elif (visibility <= 0.5) or (wind_spd >= 35.0):
+            condition = 2
+        else:
+            condition = 0
+
+        # Weather encode
+        encoder = LabelEncoder()
+        encoder.classes_ = np.load('weather.npy',allow_pickle=True)
+        # print(encoder.classes_)
+        try:
+            weather = encoder.transform(weather)
+        except Exception as e:
+            weather = 0
     except Exception as e:
-        weather = 0
+        # Handle exception
+        weather, visibility, wind_spd, temperature, condition = 0, 0, 0, 0, 0
 
     return weather, visibility, wind_spd, temperature, condition
 
