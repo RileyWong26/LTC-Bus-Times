@@ -206,6 +206,7 @@ def load_model_and_scalers():
                 stop_id_mapping = json.load(f)
             logger.info(f"Loaded stop ID mapping with {len(stop_id_mapping)} entries")
 
+            # Traffic volume mapping around stops
             with open('Traffic_mapping.json', 'r') as f:
                 traffic_volume_map = json.load(f)
             logger.info(f"Loaded Traffic volume with {len(traffic_volume_map)} entries")
@@ -269,6 +270,7 @@ def get_scheduled_time(gtfs_data, route_id, stop_id):
 
         # volume
         traffic_volume = 0
+        # Intialize empty sequences
         seq = np.zeros((30, 12))
         
         if isinstance(stop_id, (int, float)) or (isinstance(stop_id, str) and stop_id.isdigit()):
@@ -502,7 +504,7 @@ def predict():
             return jsonify({"error": "Failed to preprocess input data"}), 500
         
         # Make prediction
-        predicted_delay = math.ceil(make_prediction(model_input) * 60)
+        predicted_delay =  round(make_prediction(model_input) * 60, 2)
         if predicted_delay is None:
             return jsonify({"error": "Failed to make prediction"}), 500
         
