@@ -96,8 +96,9 @@ class AttentionBiLSTM(nn.Module):
             nn.LayerNorm(60),
             nn.LeakyReLU(),
             nn.Linear(60,30),
-            nn.LeakyReLU(),
             nn.Dropout(dropout),
+            nn.LayerNorm(30),
+            nn.LeakyReLU(),
             nn.Linear(30, outputdim)
         ).to(device)
     
