@@ -121,7 +121,7 @@ class BiLSTMModel(nn.Module):
 def load_weather():
     """load Weather api"""
     try:
-        with open("key.txt", "r") as key_file:
+        with open("../Api/key.txt", "r") as key_file:
             key = key_file.readline()
         response = requests.get(f"https://api.openweathermap.org/data/2.5/weather?q=london,CA&units=metric&APPID={key}", timeout=10)
         response.raise_for_status
@@ -170,7 +170,7 @@ def load_model_and_scalers():
     
     try:
         # Load the model
-        model_path = "ApiModel.pth"  # or model.pth based on your preference
+        model_path = "../Api/ApiModel.pth"  # or model.pth based on your preference
         # Check if CUDA is available
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"Using device: {device}")
@@ -198,17 +198,17 @@ def load_model_and_scalers():
         model.eval()
         
         # Load scalers
-        feature_scaler = joblib.load("feature_scaler.pkl")
-        target_scaler = joblib.load("target_scaler.pkl")
+        feature_scaler = joblib.load("../Api/feature_scaler.pkl")
+        target_scaler = joblib.load("../Api/target_scaler.pkl")
         
         # Load stop_id mapping
         try:
-            with open("stop_id_mapping.json", "r") as f:
+            with open("../Api/stop_id_mapping.json", "r") as f:
                 stop_id_mapping = json.load(f)
             logger.info(f"Loaded stop ID mapping with {len(stop_id_mapping)} entries")
 
             # Traffic volume mapping around stops
-            with open('Traffic_mapping.json', 'r') as f:
+            with open('../Api/Traffic_mapping.json', 'r') as f:
                 traffic_volume_map = json.load(f)
             logger.info(f"Loaded Traffic volume with {len(traffic_volume_map)} entries")
 
@@ -475,7 +475,7 @@ def Route_Information():
     '''Route information for searching data on specific route'''
 
     try:
-        file = open('StopInfo.json', 'r')
+        file = open('../Api/StopInfo.json', 'r')
         data = json.load(file)
         file.close()
 
@@ -563,5 +563,6 @@ initialize()
 if __name__ == '__main__':
     # Run the Flask app
     port = int(os.environ.get("PORT", 5001))
-    print(port)
+    # print(port)
+    # print(os.getcwd())
     app.run(host='0.0.0.0', port=port, debug=False)
