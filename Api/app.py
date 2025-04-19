@@ -470,6 +470,20 @@ def health_check():
     """Health check endpoint"""
     return jsonify({"status": "healthy", "timestamp": time.time()})
 
+@app.route('/Routes', methods=['GET'])
+def Route_Information():
+    '''Route information for searching data on specific route'''
+
+    try:
+        file = open('StopInfo.json', 'r')
+        data = json.load(file)
+        file.close()
+
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"Error": "Error involving getting the route information"}), 500
+        
+
 @app.route('/predict', methods=['POST'])
 def predict():
     """Prediction endpoint"""
