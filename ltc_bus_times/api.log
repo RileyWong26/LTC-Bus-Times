@@ -28,3 +28,45 @@
  * Running on http://172.22.10.99:5001
 2025-04-17 23:20:08,361 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
 2025-04-17 23:20:17,047 - werkzeug - INFO - 172.22.10.99 - - [17/Apr/2025 23:20:17] "GET /health HTTP/1.1" 200 -
+2025-04-18 22:12:10,824 - __main__ - INFO - Added compatibility for nn.LayerNormalization
+2025-04-18 22:12:10,824 - __main__ - INFO - Using device: cpu
+2025-04-18 22:12:10,831 - __main__ - ERROR - Error loading model or scalers: [Errno 2] No such file or directory: 'ApiModel.pth'
+2025-04-18 22:12:10,831 - __main__ - CRITICAL - Failed to load model and scalers. API may not function correctly.
+2025-04-18 22:12:10,845 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://172.22.10.99:5001
+2025-04-18 22:12:10,845 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-18 22:12:19,571 - werkzeug - INFO - 172.22.10.99 - - [18/Apr/2025 22:12:19] "[35m[1mGET /Routes HTTP/1.1[0m" 500 -
+2025-04-18 22:16:11,971 - __main__ - INFO - Added compatibility for nn.LayerNormalization
+2025-04-18 22:16:11,975 - __main__ - INFO - Using device: cpu
+2025-04-18 22:16:11,990 - __main__ - INFO - Loaded stop ID mapping with 1827 entries
+2025-04-18 22:16:11,992 - __main__ - ERROR - Error loading stop ID mapping: [Errno 2] No such file or directory: 'Traffic_mapping.json'
+2025-04-18 22:16:11,992 - __main__ - INFO - Model and scalers loaded successfully
+2025-04-18 22:16:12,007 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://172.22.10.99:5001
+2025-04-18 22:16:12,007 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-18 22:16:37,568 - __main__ - INFO - Added compatibility for nn.LayerNormalization
+2025-04-18 22:16:37,568 - __main__ - INFO - Using device: cpu
+2025-04-18 22:16:37,587 - __main__ - INFO - Loaded stop ID mapping with 1827 entries
+2025-04-18 22:16:37,589 - __main__ - ERROR - Error loading stop ID mapping: [Errno 2] No such file or directory: 'Traffic_mapping.json'
+2025-04-18 22:16:37,589 - __main__ - INFO - Model and scalers loaded successfully
+2025-04-18 22:16:37,603 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://172.22.10.99:5001
+2025-04-18 22:16:37,603 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-18 22:16:58,604 - werkzeug - INFO - 172.22.10.99 - - [18/Apr/2025 22:16:58] "GET /Routes HTTP/1.1" 200 -
+2025-04-18 23:10:27,644 - __main__ - INFO - Added compatibility for nn.LayerNormalization
+2025-04-18 23:10:27,647 - __main__ - INFO - Using device: cpu
+2025-04-18 23:10:27,663 - __main__ - INFO - Loaded stop ID mapping with 1827 entries
+2025-04-18 23:10:27,663 - __main__ - ERROR - Error loading stop ID mapping: [Errno 2] No such file or directory: 'Traffic_mapping.json'
+2025-04-18 23:10:27,663 - __main__ - INFO - Model and scalers loaded successfully
+2025-04-18 23:10:27,689 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://172.22.10.99:5001
+2025-04-18 23:10:27,689 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-18 23:12:00,424 - werkzeug - INFO - 172.22.10.99 - - [18/Apr/2025 23:12:00] "GET /Routes HTTP/1.1" 200 -
