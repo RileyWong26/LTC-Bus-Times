@@ -1,0 +1,30 @@
+2025-04-17 23:15:32,203 - __main__ - INFO - Added compatibility for nn.LayerNormalization
+2025-04-17 23:15:32,208 - __main__ - INFO - Using device: cpu
+2025-04-17 23:15:32,208 - __main__ - ERROR - Error loading model or scalers: [Errno 2] No such file or directory: 'ApiModel.pth'
+2025-04-17 23:15:32,208 - __main__ - CRITICAL - Failed to load model and scalers. API may not function correctly.
+2025-04-17 23:15:32,243 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://172.22.10.99:5001
+2025-04-17 23:15:32,243 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-17 23:15:56,245 - werkzeug - INFO - 172.22.10.99 - - [17/Apr/2025 23:15:56] "GET /health HTTP/1.1" 200 -
+2025-04-17 23:15:57,211 - werkzeug - INFO - 172.22.10.99 - - [17/Apr/2025 23:15:57] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-17 23:16:48,620 - __main__ - INFO - Added compatibility for nn.LayerNormalization
+2025-04-17 23:16:48,620 - __main__ - INFO - Using device: cpu
+2025-04-17 23:16:48,626 - __main__ - ERROR - Error loading model or scalers: [Errno 2] No such file or directory: 'ApiModel.pth'
+2025-04-17 23:16:48,626 - __main__ - CRITICAL - Failed to load model and scalers. API may not function correctly.
+2025-04-17 23:16:48,636 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://172.22.10.99:5001
+2025-04-17 23:16:48,636 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-17 23:20:08,341 - __main__ - INFO - Added compatibility for nn.LayerNormalization
+2025-04-17 23:20:08,353 - __main__ - INFO - Using device: cpu
+2025-04-17 23:20:08,353 - __main__ - ERROR - Error loading model or scalers: [Errno 2] No such file or directory: 'ApiModel.pth'
+2025-04-17 23:20:08,353 - __main__ - CRITICAL - Failed to load model and scalers. API may not function correctly.
+2025-04-17 23:20:08,361 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://172.22.10.99:5001
+2025-04-17 23:20:08,361 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-17 23:20:17,047 - werkzeug - INFO - 172.22.10.99 - - [17/Apr/2025 23:20:17] "GET /health HTTP/1.1" 200 -
