@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 const Display = () => {
 
     const [routes, setRoutes] = useState([]);
+    const [currentRoutes, setCurrentRoutes] = useState([]);
 
     // POPULATE ROUTES
     useEffect(() => { 
@@ -11,7 +12,7 @@ const Display = () => {
             method:'GET'
         })
         .then(response => response.json())
-        .then(data => setRoutes(data))
+        .then(data => {setRoutes(data); setCurrentRoutes(data);})
         .catch(error => console.log(error));
         }
 
@@ -19,12 +20,25 @@ const Display = () => {
 
     }, [])
 
+    const searchRoutes = (input) => {
+        console.log(input.value)
+        const sub = input.value.toUpperCase();
+        const tempRoute = [];
+
+        for(let i = 0; i<routes.length; i++){
+            if (routes[i].Abreviation.includes(sub)) tempRoute.push(routes[i]);
+
+        }
+        setCurrentRoutes(tempRoute);    
+    }
+
     return (
         <div>
-            {routes.map((item) => (
-        <p key={item['Route ID']}>{item.Abreviation}</p>
-      ))}
-            <button onClick={() => console.log(routes)}>yoyo</button>
+            <input className="border-2 border-black" id="input"
+                onChange={()=> searchRoutes(document.getElementById("input"))}/>
+            {currentRoutes.map((item) => (
+                <p key={item['Route ID']}>{item.Abreviation}</p>
+            ))}
         </div>
     )
 }
