@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from "react";
+import Route from "./Route"
 
 const Display = () => {
 
@@ -37,8 +38,11 @@ const Display = () => {
                 onChange={()=> searchRoutes(document.getElementById("input"))}
                 placeholder="Enter Route"
                 />
+
             {currentRoutes.map((item) => (
-                <p key={item['Route ID']}>{item.Abreviation}</p>
+                <Route  Abreviation = {item.Abreviation }
+                 Routes= {item.Routes}
+                 stopName= {item['Stop Name']}/>
             ))}
         </div>
     )
