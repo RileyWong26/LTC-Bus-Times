@@ -20,13 +20,12 @@ const Display = () => {
 
     }, [])
 
+    // FILTER ROUTES BY ABREV FOR NOW
     const searchRoutes = (input) => {
-        console.log(input.value)
         const sub = input.value.toUpperCase();
         const tempRoute = [];
-
         for(let i = 0; i<routes.length; i++){
-            if (routes[i].Abreviation.includes(sub)) tempRoute.push(routes[i]);
+            if (routes[i].Abreviation.includes(sub) || routes[i]['Stop Name'].toUpperCase().includes(sub)) tempRoute.push(routes[i]);
 
         }
         setCurrentRoutes(tempRoute);    
@@ -35,7 +34,9 @@ const Display = () => {
     return (
         <div>
             <input className="border-2 border-black" id="input"
-                onChange={()=> searchRoutes(document.getElementById("input"))}/>
+                onChange={()=> searchRoutes(document.getElementById("input"))}
+                placeholder="Enter Route"
+                />
             {currentRoutes.map((item) => (
                 <p key={item['Route ID']}>{item.Abreviation}</p>
             ))}
