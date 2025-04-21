@@ -8,9 +8,19 @@ export default function Route (props) {
 
     return (
         <div>
-            {abrev} 
-            {routes}
-            {stopName}
+            <h1>
+                {stopName}
+            </h1>
+            
+            <h1>
+                {abrev}
+            </h1>
+            <h1> 
+                {routes}
+            </h1>
+            <button className={'border-2 border-black rounded-2xl'}>
+                Find next time
+            </button>
         </div>
     )
 }
