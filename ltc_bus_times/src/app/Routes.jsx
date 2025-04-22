@@ -42,7 +42,7 @@ const Display = () => {
             {currentRoutes.map((item) => (
                 <Route  Abreviation = {item.Abreviation }
                  Routes= {item.Routes}
-                 stopName= {item['Stop Name']}/>
+                 Stop_Name= {item['Stop Name']}/>
             ))}
         </div>
     )
