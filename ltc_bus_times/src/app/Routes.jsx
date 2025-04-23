@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from "react";
 import Route from "./Route"
 
+
 const Display = () => {
 
     const [routes, setRoutes] = useState([]);
     const [currentRoutes, setCurrentRoutes] = useState([]);
+    const [display, setDisplay] = useState([])
 
     // POPULATE ROUTES
     useEffect(() => { 
@@ -13,7 +15,7 @@ const Display = () => {
             method:'GET'
         })
         .then(response => response.json())
-        .then(data => {setRoutes(data); setCurrentRoutes(data);})
+        .then(data => {setRoutes(data); setCurrentRoutes(data); setDisplay(data.slice(0, 15))})
         .catch(error => console.log(error));
         }
 
@@ -32,6 +34,13 @@ const Display = () => {
         setCurrentRoutes(tempRoute);    
     }
 
+    window.onscroll = () => {
+        console.log('1 ' + window.innerHeight + document.documentElement.scrollTop)
+        console.log('2 ' + document.documentElement.offsetHeight)
+        if(window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight){
+            console.log('hi');
+        }
+    };
     return (
         <div>
             <input className="border-2 border-black" id="input"
@@ -39,7 +48,7 @@ const Display = () => {
                 placeholder="Enter Route"
                 />
 
-            {currentRoutes.map((item) => (
+            {display.map((item) => (
                 <Route  Abreviation = {item.Abreviation }
                  Routes= {item.Routes}
                  Stop_Name= {item['Stop Name']}/>
