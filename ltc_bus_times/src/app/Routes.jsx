@@ -15,7 +15,7 @@ const Display = () => {
             method:'GET'
         })
         .then(response => response.json())
-        .then(data => {setRoutes(data); setCurrentRoutes(data); setDisplay(data.slice(0, 15))})
+        .then(data => {setRoutes(data); setCurrentRoutes(data); setDisplay(data.slice(0, 20))})
         .catch(error => console.log(error));
         }
 
@@ -40,7 +40,7 @@ const Display = () => {
         if(window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight){
             console.log('hi');
         }
-    };
+    }
     return (
         <div>
             <input className="border-2 border-black" id="input"
