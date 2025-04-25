@@ -6,9 +6,7 @@ import Routes from "./Routes";
 export default function Home() {
  
    return (
-    <div className=" items-center content-center">
-      <input className=" border-2 border-black" onClick={() => console.log(routes)}/>
-
+    <div className=" items-center content-center m-auto text-center">
       <Routes />
     </div>
   );
